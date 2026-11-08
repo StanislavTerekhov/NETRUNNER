@@ -1,0 +1,68 @@
+{
+  "name": "netrunner",
+  "productName": "NETRUNNER",
+  "version": "1.9.3",
+  "private": true,
+  "description": "Autonomous local AI coding environment",
+  "license": "MIT",
+  "author": "NETRUNNER",
+  "type": "module",
+  "main": "dist-electron/main/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "dist": "node tools/third-party-notices.mjs && vite build --mode release && electron-builder",
+    "dist:test": "node tools/third-party-notices.mjs && vite build && electron-builder --dir -c.directories.output=release/${version}-test",
+    "dist:dir": "node tools/third-party-notices.mjs && vite build && electron-builder --dir",
+    "test": "vitest run",
+    "test:smoke": "vite build && node test/smoke/run-smoke.mjs",
+    "test:ci": "npm run typecheck && vitest run && vite build && node test/smoke/run-smoke.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "notices": "node tools/third-party-notices.mjs",
+    "test:perf": "powershell -NoProfile -ExecutionPolicy Bypass -File test/perf/idle.ps1"
+  },
+  "overrides": {
+    "dompurify": "^3.4.17"
+  },
+  "devDependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "axe-core": "^4.14.0",
+    "electron": "^42.11.18",
+    "electron-builder": "^26.18.0",
+    "happy-dom": "^21.0.4",
+    "lucide-react": "^1.65.0",
+    "monaco-editor": "^0.57.0",
+    "motion": "^14.9.0",
+    "opencode-ai": "1.19.5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-resizable-panels": "^4.15.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vite-plugin-electron": "^1.1.2",
+    "vitest": "^5.0.5",
+    "zustand": "^5.0.16"
+  },
+  "dependencies": {
+    "@opencode-ai/sdk": "^1.19.5",
+    "node-pty": "^1.1.0",
+    "pyright": "^1.1.408",
+    "sqlite-vec": "^0.1.9",
+    "systeminformation": "^5.33.19"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true,
+    "node-pty@1.1.0": true,
+    "opencode-ai@1.19.5": true
+  }
+}

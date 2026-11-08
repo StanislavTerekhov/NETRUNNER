@@ -1,0 +1,133 @@
+[
+  {
+    "rel": "Qwen/Qwen3-Coder-Next-GGUF/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00001-of-00004.gguf",
+    "size": 15524827040,
+    "sha256": "6bcfc9f9c37901eeb92172e2ab871224dab36a453d263bcb2547f737409534da",
+    "source": "huggingface",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF/resolve/b82fb7382639d97b38fa7672e526c760c2fb358e/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00001-of-00004.gguf"
+  },
+  {
+    "rel": "Qwen/Qwen3-Coder-Next-GGUF/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00002-of-00004.gguf",
+    "size": 14872168352,
+    "sha256": "817def0691ee9d08bf3dc4444be7aed29c9e52091e8fa9d97901ce7e7f6f01d3",
+    "source": "huggingface",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF/resolve/b82fb7382639d97b38fa7672e526c760c2fb358e/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00002-of-00004.gguf"
+  },
+  {
+    "rel": "Qwen/Qwen3-Coder-Next-GGUF/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00003-of-00004.gguf",
+    "size": 14503294496,
+    "sha256": "23aa634d47dca9b4ca3ea249384e6f01951b24c83cdc076f37f6f43d6c99883f",
+    "source": "huggingface",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF/resolve/b82fb7382639d97b38fa7672e526c760c2fb358e/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00003-of-00004.gguf"
+  },
+  {
+    "rel": "Qwen/Qwen3-Coder-Next-GGUF/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00004-of-00004.gguf",
+    "size": 3510702144,
+    "sha256": "249c768cc5f130dc731567d6edcbdacc48e14dec9e02c5dbe2b2185d2c5bdb2b",
+    "source": "huggingface",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF/resolve/b82fb7382639d97b38fa7672e526c760c2fb358e/Qwen3-Coder-Next-Q4_K_M/Qwen3-Coder-Next-Q4_K_M-00004-of-00004.gguf"
+  },
+  {
+    "rel": "Qwen/Qwen3-Embedding-0.6B-GGUF/Qwen3-Embedding-0.6B-Q8_0.gguf",
+    "size": 639150592,
+    "sha256": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+    "source": "huggingface",
+    "url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF/resolve/370f27d7550e0def9b39c1f16d3fbaa13aa67728/Qwen3-Embedding-0.6B-Q8_0.gguf"
+  },
+  {
+    "rel": "ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/qwen3-reranker-0.6b-q8_0.gguf",
+    "size": 639153184,
+    "sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+    "source": "huggingface",
+    "url": "https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/resolve/a02f48bb4f057028298c21fa033da2b30d7742d5/qwen3-reranker-0.6b-q8_0.gguf"
+  },
+  {
+    "rel": "netrunner/netrunner-netrunner-v3/mmproj-netrunner-netrunner-v3-f16.gguf",
+    "size": 672422944,
+    "sha256": "d312f751aeeb42bdb8f5533fde84853c9e59ccf5a812a7cf4fa8509d56e2cfad",
+    "source": "github",
+    "parts": [
+      {
+        "name": "netrunner__netrunner-netrunner-v3__mmproj-netrunner-netrunner-v3-f16.gguf",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__netrunner-netrunner-v3__mmproj-netrunner-netrunner-v3-f16.gguf",
+        "size": 672422944,
+        "sha256": "d312f751aeeb42bdb8f5533fde84853c9e59ccf5a812a7cf4fa8509d56e2cfad"
+      }
+    ]
+  },
+  {
+    "rel": "netrunner/netrunner-netrunner-v3/netrunner-netrunner-v3-Q4_K_M.gguf",
+    "size": 2783446688,
+    "sha256": "845859e3e6131517f095abb5e102fb2718c92d5d060ccea27b00e40f69ea2239",
+    "source": "github",
+    "parts": [
+      {
+        "name": "netrunner__netrunner-netrunner-v3__netrunner-netrunner-v3-Q4_K_M.gguf.part1",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__netrunner-netrunner-v3__netrunner-netrunner-v3-Q4_K_M.gguf.part1",
+        "size": 1900000000,
+        "sha256": "b4e13336ea786607aa13cead40a5e3efbbe28d3b54f83d7e8e2e7958032808ce"
+      },
+      {
+        "name": "netrunner__netrunner-netrunner-v3__netrunner-netrunner-v3-Q4_K_M.gguf.part2",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__netrunner-netrunner-v3__netrunner-netrunner-v3-Q4_K_M.gguf.part2",
+        "size": 883446688,
+        "sha256": "ef5209d9e9d3fbd9f19ff1c416b2e59e57cf2ba58b760a63e3834ec06f7b6106"
+      }
+    ]
+  },
+  {
+    "rel": "netrunner/qwen3.5-4b-base/mmproj-qwen3.5-4b-base-f16.gguf",
+    "size": 672423520,
+    "sha256": "7e6cdc9792c093c15c2459e1b23cfbc337c1ade03cd2549013fcb0587702623f",
+    "source": "github",
+    "parts": [
+      {
+        "name": "netrunner__qwen3.5-4b-base__mmproj-qwen3.5-4b-base-f16.gguf",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__qwen3.5-4b-base__mmproj-qwen3.5-4b-base-f16.gguf",
+        "size": 672423520,
+        "sha256": "7e6cdc9792c093c15c2459e1b23cfbc337c1ade03cd2549013fcb0587702623f"
+      }
+    ]
+  },
+  {
+    "rel": "netrunner/qwen3.5-4b-base/qwen3.5-4b-base-Q4_K_M.gguf",
+    "size": 2783447264,
+    "sha256": "8c1fc7755778949f6b7eae259269e657fb72f21b92a256d98ac54a4e297c565e",
+    "source": "github",
+    "parts": [
+      {
+        "name": "netrunner__qwen3.5-4b-base__qwen3.5-4b-base-Q4_K_M.gguf.part1",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__qwen3.5-4b-base__qwen3.5-4b-base-Q4_K_M.gguf.part1",
+        "size": 1900000000,
+        "sha256": "98950cdbafbbaf0b7d05a177b2816b9b5ae6ef41b4688d2a0c1243718b027d63"
+      },
+      {
+        "name": "netrunner__qwen3.5-4b-base__qwen3.5-4b-base-Q4_K_M.gguf.part2",
+        "url": "https://github.com/StanislavTerekhov/NETRUNNER/releases/download/models-v1/netrunner__qwen3.5-4b-base__qwen3.5-4b-base-Q4_K_M.gguf.part2",
+        "size": 883447264,
+        "sha256": "66241fd8c4a5684bafaa441d3c6df43f343324300f318135b6d5c5923fdd30e6"
+      }
+    ]
+  },
+  {
+    "rel": "unsloth/Qwen3.8-27B-GGUF/Qwen3.8-27B-UD-IQ3_XXS.gguf",
+    "size": 10934860704,
+    "sha256": "c0b7c3038681ed2e3040456c1dd45f9858b6c2290bed172c70388a94874f3eee",
+    "source": "huggingface",
+    "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/4ca720788d1e01f1bff70c033e0d0028fd02e502/Qwen3.8-27B-UD-IQ3_XXS.gguf"
+  },
+  {
+    "rel": "unsloth/Qwen3.8-27B-GGUF/Qwen3.8-27B-UD-Q4_K_M.gguf",
+    "size": 16464440224,
+    "sha256": "322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482",
+    "source": "huggingface",
+    "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/4ca720788d1e01f1bff70c033e0d0028fd02e502/Qwen3.8-27B-UD-Q4_K_M.gguf"
+  },
+  {
+    "rel": "unsloth/Qwen3.8-27B-GGUF/mmproj-F16.gguf",
+    "size": 927607488,
+    "sha256": "cbb841a9ee0636b2ec172f5bb8df2ea8dfeb01e90fe7c6126581d662a0b4e43e",
+    "source": "huggingface",
+    "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/4ca720788d1e01f1bff70c033e0d0028fd02e502/mmproj-F16.gguf"
+  }
+]

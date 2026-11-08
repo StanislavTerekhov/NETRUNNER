@@ -1,0 +1,22 @@
+﻿{
+    "startedAt":  "2026-10-30T21:53:55.3807460-07:00",
+    "finishedAt":  "2026-10-30T21:58:18.8770654-07:00",
+    "samples":  290,
+    "maxProcessesWatched":  16,
+    "processNamesSeen":  [
+                             "[ollama] llama-server.exe",
+                             "[ollama] ollama app.exe",
+                             "[ollama] ollama.exe",
+                             "cmd.exe",
+                             "conhost.exe",
+                             "git.exe",
+                             "NETRUNNER.exe",
+                             "NETSTAT.EXE",
+                             "opencode.exe",
+                             "powershell.exe",
+                             "taskkill.exe"
+                         ],
+    "externalTcpConnections":  [
+
+                               ]
+}

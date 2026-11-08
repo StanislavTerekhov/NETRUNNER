@@ -1,0 +1,23 @@
+﻿Лицензии
+
+NETRUNNER — лицензия MIT.
+Сторонние программы в составе NETRUNNER (Electron, OpenCode, pyright и другие) — их лицензии
+перечислены в THIRD_PARTY_NOTICES.txt в папке программы после установки.
+
+llama.cpp — лицензия MIT (https://github.com/ggml-org/llama.cpp).
+LLVM OpenMP (libomp.dll) — Apache-2.0 с исключениями LLVM (LICENSE-LLVM-OpenMP рядом с движком).
+NVIDIA CUDA runtime (cudart, cuBLAS) — распространяется по условиям NVIDIA CUDA EULA.
+Microsoft Visual C++ runtime (msvcp140, vcruntime140, vcruntime140_1) — распространяемые
+компоненты Microsoft Visual Studio, по условиям её лицензии.
+
+Модели (веса нейросетей):
+  • Qwen3.8-27B (кванты unsloth, проектор изображений) — Apache-2.0
+  • Qwen3-Coder-Next (Q4_K_M, Qwen) — Apache-2.0 по карточке модели Qwen/Qwen3-Coder-Next
+    (в самом файле модели поле лицензии не заполнено)
+  • Qwen3-Embedding-0.6B, Qwen3-Reranker-0.6B — Apache-2.0
+  • Qwen3.5-4B (базовая для FORGE) — Apache-2.0
+  • netrunner-v3 — дообучение Qwen3.5-4B в NETRUNNER FORGE; на неё распространяется лицензия
+    исходной модели, Apache-2.0
+Текст Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+Устанавливая программу, вы принимаете условия этих лицензий.

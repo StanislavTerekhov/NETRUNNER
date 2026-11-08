@@ -1,0 +1,86 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "dev.netrunner.workstation",
+  "productName": "NETRUNNER",
+  "copyright": "NETRUNNER",
+  "asar": true,
+  "asarUnpack": [
+    "node_modules/node-pty/**",
+    "node_modules/sqlite-vec-windows-x64/**",
+    "node_modules/pyright/**"
+  ],
+  "directories": {
+    "output": "release/${version}"
+  },
+  "files": [
+    "dist-electron",
+    "dist",
+    "!node_modules/node-pty/prebuilds/{darwin-*,linux-*,win32-arm64}/**"
+  ],
+  "extraResources": [
+    {
+      "from": "node_modules/opencode-windows-x64/bin/opencode.exe",
+      "to": "opencode/opencode.exe"
+    },
+    {
+      "from": "node_modules/opencode-ai/LICENSE",
+      "to": "opencode/LICENSE"
+    },
+    {
+      "from": "build/THIRD_PARTY_NOTICES.txt",
+      "to": "THIRD_PARTY_NOTICES.txt"
+    },
+    {
+      "from": "electron/lsp-host/pyright-host.cjs",
+      "to": "lsp/pyright-host.cjs"
+    },
+    {
+      "from": "forge",
+      "to": "forge",
+      "filter": [
+        "*.py",
+        "*.lock.txt",
+        "README.md"
+      ]
+    },
+    {
+      "from": "build/crt",
+      "to": "crt",
+      "filter": [
+        "*.dll"
+      ]
+    }
+  ],
+  "npmRebuild": false,
+  "electronFuses": {
+    "runAsNode": false,
+    "enableNodeOptionsEnvironmentVariable": false,
+    "enableNodeCliInspectArguments": false,
+    "enableEmbeddedAsarIntegrityValidation": true,
+    "onlyLoadAppFromAsar": true,
+    "enableCookieEncryption": true
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "artifactName": "${productName}_Setup_${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "NETRUNNER",
+    "uninstallDisplayName": "NETRUNNER ${version}"
+  },
+  "publish": null
+}

@@ -1,0 +1,26 @@
+# Checks that need no models, runtime or GPU: typecheck, unit + component tests, and the UI acceptance in CI mode
+# (NETRUNNER_SMOKE_CI=1: the app must say what is missing instead of using local models).
+name: ci
+on: [push, pull_request]
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      NETRUNNER_SMOKE_CI: '1'
+      NETRUNNER_SMOKE_A11Y: '1'
+      NETRUNNER_HOME: ${{ runner.temp }}\nr-home
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx install-electron --no
+      - run: npm run test:ci
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-output
+          path: test/output

@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-void: #07090b;
+  --color-surface: #101417;
+  --color-surface-2: #161c20;
+  --color-line: #232b31;
+  --color-line-bright: #34404a;
+  --color-primary: #fcee09;
+  --color-secondary: #00e5ff;
+  --color-critical: #ff2442;
+  --color-success: #19f5a5;
+  --color-text: #d7dde2;
+  --color-muted: #98a3ad;
+  --color-dim: #7a8590;
+
+  --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+  body {
+    background: var(--color-void);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-secondary) 35%, transparent);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-bright);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-corner,
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  :focus-visible {
+    outline: 1px solid var(--color-secondary);
+    outline-offset: -1px;
+  }
+}
+
+@utility drag-region {
+  -webkit-app-region: drag;
+}
+@utility no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Angular technical panel: clipped top-left and bottom-right corners. */
+@utility hud-panel {
+  background: var(--color-surface);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+@utility hud-cut-sm {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+/* Faint scanline texture used on headers; purely decorative, no animation. */
+@utility hud-scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-secondary) 4%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* Data flowing into the running pipeline step. */
+@keyframes pipeline-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+.pipeline-flow {
+  stroke: var(--color-primary);
+  animation: pipeline-flow 0.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
