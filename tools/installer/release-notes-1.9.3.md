@@ -1,28 +1,30 @@
-## NETRUNNER 1.9.3 — первый публичный релиз
+## NETRUNNER 1.9.3 — first public release
 
-Локальная рабочая станция ИИ для разработчика под Windows: редактор кода, чат, агенты, терминал и мониторы ресурсов.
-Все модели работают на вашем компьютере.
+A local AI workstation for developers on Windows: code editor, chat, agents, terminal and resource monitors.
+Every model runs on your own computer.
 
-### Установка
+### Installation
 
-1. Скачайте **`NETRUNNER_Setup_1.9.3.exe`** ниже.
-2. Запустите. Если Windows SmartScreen покажет предупреждение (установщик не подписан цифровой подписью) —
-   «Подробнее» → «Выполнить в любом случае».
-3. Нажимайте «Далее» до конца. Права администратора не нужны.
+1. Download **`NETRUNNER_Setup_1.9.3.exe`** below.
+2. Run it. If Windows SmartScreen shows a warning (the installer is not code-signed), click
+   **More info → Run anyway**.
+3. Click "Next" until it finishes. No administrator rights are needed.
 
-Установщик сам ставит программу, движок llama.cpp с библиотеками Visual C++ и ripgrep, **скачивает все модели
-(~85 ГБ)** — Qwen с Hugging Face, модели NETRUNNER из релиза `models-v1` — проверяет каждый файл по SHA-256 и ставит
-Git for Windows, если его нет. Во время установки нужен интернет; потом программа работает офлайн.
+The installer sets up the program, the llama.cpp engine with the Visual C++ runtime and ripgrep, **downloads every
+model (~85 GB)** — Qwen from Hugging Face, NETRUNNER's own models from the `models-v1` release — checks each file's
+SHA-256, and installs Git for Windows if it is missing. An internet connection is needed during installation; after
+that the program works offline. A dropped download resumes where it stopped.
 
-### Системные требования
+### System requirements
 
-| | Минимальные | Рекомендуемые |
+| | Minimum | Recommended |
 |---|---|---|
-| ОС | Windows 10 (1809) x64 | Windows 11 x64 |
-| Процессор | x64, 4 ядра | 8+ ядер |
-| ОЗУ | 16 ГБ (чат) | 64 ГБ (агенты на Qwen3-Coder-Next) |
-| Видеокарта | не обязательна (без неё медленно) | NVIDIA 12 ГБ, драйвер R580+ |
-| Диск | 100 ГБ | 100 ГБ на SSD |
+| OS | Windows 10 (1809) x64 | Windows 11 x64 |
+| CPU | x64, 4 cores | 8+ cores |
+| RAM | 16 GB (chat) | 64 GB (agents on Qwen3-Coder-Next) |
+| GPU | optional (slow without it) | NVIDIA 12 GB, driver R580+ |
+| Disk | 100 GB | 100 GB on an SSD |
 
-Драйвер NVIDIA ставится отдельно с nvidia.com. Подробнее — в [README](https://github.com/StanislavTerekhov/NETRUNNER#readme)
-и [CHANGELOG](https://github.com/StanislavTerekhov/NETRUNNER/blob/main/CHANGELOG.md).
+The NVIDIA driver is installed separately from nvidia.com. More in the
+[README](https://github.com/StanislavTerekhov/NETRUNNER#readme) and the
+[CHANGELOG](https://github.com/StanislavTerekhov/NETRUNNER/blob/main/CHANGELOG.md).
