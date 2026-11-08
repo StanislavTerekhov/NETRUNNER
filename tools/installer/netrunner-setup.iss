@@ -23,6 +23,7 @@
 ; Git for Windows, official release; SHA-256 as published on its GitHub release.
 #define GitUrl "https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.4/Git-2.56.0.4-64-bit.exe"
 #define GitSha "4961a4a8cc778d8b6e00a5819e5fe4d078b754555aff7aedc2d77a5d74c2de80"
+#define GitSize "66850032"
 
 #include "models-size.iss"
 
@@ -78,6 +79,7 @@ Filename: "{app}\NETRUNNER.exe"; Description: "{cm:LaunchProgram,NETRUNNER}"; Fl
 Type: dirifempty; Name: "{%USERPROFILE}\NETRUNNER\runtime\llama.cpp"
 Type: dirifempty; Name: "{%USERPROFILE}\NETRUNNER\runtime\ripgrep"
 Type: dirifempty; Name: "{%USERPROFILE}\NETRUNNER\runtime"
+Type: filesandordirs; Name: "{%USERPROFILE}\NETRUNNER\models\.download"
 Type: dirifempty; Name: "{%USERPROFILE}\NETRUNNER\models"
 
 [Code]
@@ -87,8 +89,10 @@ var
   ModelFirst, ModelCount: array of Integer;
   PartUrl, PartName, PartSha: array of String;
   PartSize: array of Int64;
-  DownloadPage: TDownloadWizardPage;
+  Progress: TOutputProgressWizardPage;
   NeedGit: Boolean;
+
+procedure Sleep(ms: LongWord); external 'Sleep@kernel32.dll stdcall';
 
 procedure AddModel(Rel, Sha: String; Size: Int64);
 var n: Integer;
@@ -115,6 +119,13 @@ begin
   Result := ExpandConstant('{%USERPROFILE}\NETRUNNER\models');
 end;
 
+// Downloads live next to the models (same disk: moving a finished file is a rename) and survive a failed or
+// cancelled run, so the next run resumes them instead of starting over.
+function StagingDir: String;
+begin
+  Result := ModelsDir + '\.download';
+end;
+
 function SizeOf(Path: String): Int64;
 var s: Int64;
 begin
@@ -128,17 +139,10 @@ begin
 end;
 
 function GitPresent: Boolean;
-var p: String;
 begin
-  p := '';
   Result := (FileSearch('git.exe', GetEnv('PATH')) <> '')
     or FileExists(ExpandConstant('{localappdata}\Programs\Git\cmd\git.exe'))
     or FileExists(ExpandConstant('{commonpf64}\Git\cmd\git.exe'));
-end;
-
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
-begin
-  Result := True;
 end;
 
 procedure AddModels; forward;
@@ -146,85 +150,139 @@ procedure AddModels; forward;
 procedure InitializeWizard;
 begin
   AddModels;
-  DownloadPage := CreateDownloadPage('Загрузка моделей', 'NETRUNNER скачивает модели и проверяет каждый файл по SHA-256. Это может занять несколько часов — зависит от скорости интернета.', @OnDownloadProgress);
-  DownloadPage.ShowBaseNameInsteadOfUrl := True;
+  Progress := CreateOutputProgressPage('Загрузка моделей',
+    'NETRUNNER скачивает модели и проверяет каждый файл по SHA-256. Это может занять от получаса до нескольких часов. ' +
+    'Если закрыть установщик, при следующем запуске загрузка продолжится с того же места.');
 end;
 
-// Downloads one file into {tmp} (Inno checks its SHA-256). Three automatic attempts, then the user may retry or cancel.
-function DownloadOne(Url, Name, Sha: String; Size: Int64; Title: String): Boolean;
-var attempt: Integer;
+function Mb(Bytes: Int64): String;
+begin
+  Result := IntToStr(Bytes div 1048576) + ' МБ';
+end;
+
+// One curl.exe run (built into Windows 10 1803+): follows redirects, resumes a partial file (-C -) and gives up on a
+// connection slower than 1 MB/s for 30 s, so the caller can reconnect: a stalled CDN route does not hold the install
+// hostage. Shows the file growing while it runs. True when curl reported success.
+function CurlOnce(Url, Target, Title: String; Size: Int64): Boolean;
+var marker, line: String; rc, ticks: Integer; got, prev: Int64; ans: AnsiString;
+begin
+  marker := Target + '.done';
+  DeleteFile(marker);
+  line := '/c ""' + ExpandConstant('{sys}\curl.exe') + '" -L --fail -sS -C - --connect-timeout 30 --speed-limit 1000000 --speed-time 30 -o "' +
+    Target + '" "' + Url + '" && (echo ok>"' + marker + '") || (echo fail>"' + marker + '")"';
+  if not Exec(ExpandConstant('{cmd}'), line, '', SW_HIDE, ewNoWait, rc) then begin Result := False; Exit; end;
+  prev := SizeOf(Target);
+  if prev < 0 then prev := 0;
+  ticks := 0;
+  while not FileExists(marker) do begin
+    Sleep(250);
+    ticks := ticks + 1;
+    got := SizeOf(Target);
+    if got < 0 then got := 0;
+    if Size > 0 then Progress.SetProgress(Integer((got * 1000) div Size), 1000);
+    if ticks mod 8 = 0 then begin
+      Progress.SetText(Title, Mb(got) + ' из ' + Mb(Size) + ' · ' + IntToStr(((got - prev) div 2) div 1048576) + ' МБ/с');
+      prev := got;
+    end;
+  end;
+  Sleep(200);
+  Result := LoadStringFromFile(marker, ans) and (Pos('ok', String(ans)) > 0);
+  DeleteFile(marker);
+end;
+
+// Downloads Url to Target until it has Size bytes and the right SHA-256. Reconnects and resumes on its own; after
+// many failed attempts in a row the user may retry or cancel (cancel keeps the partial file for the next run).
+function DownloadFile(Url, Target, Sha: String; Size: Int64; Title: String): Boolean;
+var attempts: Integer;
 begin
   Result := False;
-  if SizeOf(ExpandConstant('{tmp}\') + Name) = Size then begin Result := True; Exit; end;
-  attempt := 0;
-  while not Result do begin
-    attempt := attempt + 1;
-    DownloadPage.Clear;
-    DownloadPage.Add(Url, Name, Sha);
-    DownloadPage.SetText(Title, Name);
-    try
-      DownloadPage.Download;
-      Result := True;
-    except
-      Log('Download failed (' + IntToStr(attempt) + '): ' + Name + ': ' + GetExceptionMessage);
-      if DownloadPage.AbortedByUser then Exit;
-      if (attempt >= 3) and (SuppressibleMsgBox('Не удалось скачать ' + Name + ':' + #13#10 + GetExceptionMessage + #13#10#13#10 + 'Проверьте подключение к интернету и нажмите «Повтор».', mbError, MB_RETRYCANCEL, IDCANCEL) = IDCANCEL) then Exit;
+  attempts := 0;
+  while True do begin
+    if SizeOf(Target) = Size then begin
+      Progress.SetText(Title, 'Проверка SHA-256…');
+      Progress.SetProgress(1000, 1000);
+      if CompareText(GetSHA256OfFile(Target), Sha) = 0 then begin Result := True; Exit; end;
+      Log('SHA-256 mismatch, downloading again: ' + Target);
+      DeleteFile(Target);
+    end;
+    if SizeOf(Target) > Size then DeleteFile(Target);
+    if not CurlOnce(Url, Target, Title, Size) then begin
+      attempts := attempts + 1;
+      Log('curl attempt ' + IntToStr(attempts) + ' ended at ' + IntToStr(SizeOf(Target)) + ' of ' + IntToStr(Size) + ' bytes: ' + Target);
+      if attempts mod 20 = 0 then
+        if SuppressibleMsgBox('Не удаётся скачать ' + ExtractFileName(Target) + '.' + #13#10#13#10 +
+          'Проверьте подключение к интернету и нажмите «Повтор». Уже скачанное сохранится.', mbError, MB_RETRYCANCEL, IDCANCEL) = IDCANCEL then Exit;
+      Sleep(2000);
     end;
   end;
 end;
 
-// Joins downloaded parts into one file in {tmp} and checks the result's SHA-256.
-function JoinParts(i: Integer): Boolean;
-var target, cmd: String; k, rc: Integer;
+function MoveInto(Src, Dst: String): Boolean;
 begin
-  target := ExpandConstant('{tmp}\model') + IntToStr(i) + '.gguf';
-  if SizeOf(target) = ModelSize[i] then begin Result := True; Exit; end;
-  cmd := '/c copy /b ';
-  for k := 0 to ModelCount[i] - 1 do begin
-    if k > 0 then cmd := cmd + '+';
-    cmd := cmd + '"' + ExpandConstant('{tmp}\') + PartName[ModelFirst[i] + k] + '"';
-  end;
-  cmd := cmd + ' "' + target + '" >nul';
-  Result := Exec(ExpandConstant('{cmd}'), cmd, '', SW_HIDE, ewWaitUntilTerminated, rc) and (rc = 0)
-    and (SizeOf(target) = ModelSize[i]) and (CompareText(GetSHA256OfFile(target), ModelSha[i]) = 0);
-  if Result then
-    for k := 0 to ModelCount[i] - 1 do DeleteFile(ExpandConstant('{tmp}\') + PartName[ModelFirst[i] + k])
-  else
-    Log('Join or SHA-256 check failed: ' + ModelRel[i]);
+  ForceDirectories(ExtractFileDir(Dst));
+  if FileExists(Dst) then DeleteFile(Dst);
+  Result := RenameFile(Src, Dst);
+  if not Result and FileCopy(Src, Dst, False) then Result := DeleteFile(Src);
 end;
 
-function DownloadedPath(i: Integer): String;
+// Downloads one model (its parts), joins parts, checks the SHA-256 of the whole and puts it in place right away.
+function InstallModel(i: Integer; Title: String): Boolean;
+var k, rc: Integer; joined, cmd: String;
 begin
-  if ModelCount[i] = 1 then Result := ExpandConstant('{tmp}\') + PartName[ModelFirst[i]]
-  else Result := ExpandConstant('{tmp}\model') + IntToStr(i) + '.gguf';
+  Result := False;
+  for k := 0 to ModelCount[i] - 1 do
+    if not DownloadFile(PartUrl[ModelFirst[i] + k], StagingDir + '\' + PartName[ModelFirst[i] + k], PartSha[ModelFirst[i] + k],
+      PartSize[ModelFirst[i] + k], Title + ' (' + IntToStr(k + 1) + '/' + IntToStr(ModelCount[i]) + ')') then Exit;
+  if ModelCount[i] = 1 then
+    joined := StagingDir + '\' + PartName[ModelFirst[i]]
+  else begin
+    joined := StagingDir + '\joined.gguf';
+    Progress.SetText(Title, 'Сборка частей и проверка SHA-256…');
+    cmd := '/c copy /b ';
+    for k := 0 to ModelCount[i] - 1 do begin
+      if k > 0 then cmd := cmd + '+';
+      cmd := cmd + '"' + StagingDir + '\' + PartName[ModelFirst[i] + k] + '"';
+    end;
+    cmd := cmd + ' "' + joined + '" >nul';
+    if not (Exec(ExpandConstant('{cmd}'), cmd, '', SW_HIDE, ewWaitUntilTerminated, rc) and (rc = 0)
+      and (SizeOf(joined) = ModelSize[i]) and (CompareText(GetSHA256OfFile(joined), ModelSha[i]) = 0)) then begin
+      Log('Join or SHA-256 check failed: ' + ModelRel[i]);
+      DeleteFile(joined);
+      for k := 0 to ModelCount[i] - 1 do DeleteFile(StagingDir + '\' + PartName[ModelFirst[i] + k]);
+      SuppressibleMsgBox('Файл модели ' + ModelRel[i] + ' собран с ошибкой. Запустите установку ещё раз.', mbError, MB_OK, IDOK);
+      Exit;
+    end;
+    for k := 0 to ModelCount[i] - 1 do DeleteFile(StagingDir + '\' + PartName[ModelFirst[i] + k]);
+  end;
+  Result := MoveInto(joined, ModelsDir + '\' + ModelRel[i]) and ModelInstalled(i);
+  if not Result then Log('Could not move ' + joined + ' into place');
 end;
 
 function DownloadAll: Boolean;
-var i, k, total, done: Integer;
+var i, total, done: Integer;
 begin
   Result := False;
   total := 0;
   for i := 0 to GetArrayLength(ModelRel) - 1 do if not ModelInstalled(i) then total := total + 1;
   NeedGit := not GitPresent;
   if (total = 0) and not NeedGit then begin Result := True; Exit; end;
-  DownloadPage.Show;
+  if not FileExists(ExpandConstant('{sys}\curl.exe')) then begin
+    SuppressibleMsgBox('В этой Windows нет curl.exe (есть начиная с Windows 10 1803). Обновите Windows и запустите установку снова.', mbError, MB_OK, IDOK);
+    Exit;
+  end;
+  ForceDirectories(StagingDir);
+  Progress.Show;
   try
     done := 0;
     for i := 0 to GetArrayLength(ModelRel) - 1 do begin
       if ModelInstalled(i) then Continue;
       done := done + 1;
-      for k := 0 to ModelCount[i] - 1 do
-        if not DownloadOne(PartUrl[ModelFirst[i] + k], PartName[ModelFirst[i] + k], PartSha[ModelFirst[i] + k], PartSize[ModelFirst[i] + k],
-          'Модель ' + IntToStr(done) + ' из ' + IntToStr(total) + ': ' + ModelRel[i]) then Exit;
-      if (ModelCount[i] > 1) and not JoinParts(i) then begin
-        SuppressibleMsgBox('Файл модели ' + ModelRel[i] + ' собран с ошибкой. Запустите установку ещё раз.', mbError, MB_OK, IDOK);
-        Exit;
-      end;
+      if not InstallModel(i, 'Модель ' + IntToStr(done) + ' из ' + IntToStr(total) + ': ' + ExtractFileName(ModelRel[i])) then Exit;
     end;
-    if NeedGit and not DownloadOne('{#GitUrl}', 'Git-setup.exe', '{#GitSha}', 0, 'Git for Windows (нужен агентам)') then Exit;
+    if NeedGit and not DownloadFile('{#GitUrl}', StagingDir + '\Git-setup.exe', '{#GitSha}', {#GitSize}, 'Git for Windows (нужен агентам)') then Exit;
     Result := True;
   finally
-    DownloadPage.Hide;
+    Progress.Hide;
   end;
 end;
 
@@ -234,28 +292,20 @@ begin
   if CurPageID = wpReady then Result := DownloadAll;
 end;
 
-// Moves the downloaded models into place (same disk: a rename, no second copy) and installs Git when it was missing.
+// After the files are in place: Git for Windows for the current user when it was missing; the empty staging folder
+// goes away.
 procedure CurStepChanged(CurStep: TSetupStep);
-var i, rc: Integer; src, dst: String;
+var rc: Integer; git: String;
 begin
   if CurStep <> ssPostInstall then Exit;
-  for i := 0 to GetArrayLength(ModelRel) - 1 do begin
-    if ModelInstalled(i) then Continue;
-    src := DownloadedPath(i);
-    dst := ModelsDir + '\' + ModelRel[i];
-    WizardForm.StatusLabel.Caption := 'Установка модели ' + ModelRel[i];
-    ForceDirectories(ExtractFileDir(dst));
-    if FileExists(dst) then DeleteFile(dst);
-    if not RenameFile(src, dst) then
-      if FileCopy(src, dst, False) then DeleteFile(src);
-    if not ModelInstalled(i) then
-      SuppressibleMsgBox('Не удалось установить ' + ModelRel[i] + '. Запустите установку ещё раз — уже скачанное не будет скачиваться заново.', mbError, MB_OK, IDOK);
-  end;
-  if NeedGit and FileExists(ExpandConstant('{tmp}\Git-setup.exe')) then begin
+  git := StagingDir + '\Git-setup.exe';
+  if NeedGit and FileExists(git) then begin
     WizardForm.StatusLabel.Caption := 'Установка Git for Windows';
-    Exec(ExpandConstant('{tmp}\Git-setup.exe'), '/VERYSILENT /NORESTART /NOCANCEL /SP- /SUPPRESSMSGBOXES /DIR="' + ExpandConstant('{localappdata}\Programs\Git') + '"', '', SW_HIDE, ewWaitUntilTerminated, rc);
+    Exec(git, '/VERYSILENT /NORESTART /NOCANCEL /SP- /SUPPRESSMSGBOXES /DIR="' + ExpandConstant('{localappdata}\Programs\Git') + '"', '', SW_HIDE, ewWaitUntilTerminated, rc);
     Log('Git setup exit code ' + IntToStr(rc));
+    DeleteFile(git);
   end;
+  RemoveDir(StagingDir);
 end;
 
 // The model list (Pascal calling AddModel/AddPart above) and its [UninstallDelete] entries.

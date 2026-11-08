@@ -5,7 +5,11 @@
   llama.cpp b12020 with the Visual C++ runtime, and ripgrep inside; during installation it downloads all 13 model
   files (~85 GB) — Qwen from Hugging Face at pinned revisions, FORGE models from this repository's `models-v1`
   release in parts under 2 GiB — checks each by SHA-256, and installs Git for Windows 2.56 for the current user when
-  Git is missing. Retries failed downloads; a second run skips what is already there. Uninstall removes the models.
+  Git is missing. Downloads go through Windows' own curl.exe straight into `models\.download`: a connection slower
+  than 1 MB/s for 30 s is dropped and resumed (`-C -`) on a new one — Inno Setup's built-in downloader stalled at
+  1.5 MB/s on one CDN route in testing while the same file came at 37 MB/s on a fresh connection. Each model is put in
+  place as soon as its SHA-256 checks out, so a cancelled or failed run loses nothing: the next run skips finished
+  models and resumes the partial file. Uninstall removes the models.
 - `tools/installer/models-manifest.mjs` hashes the models and checks that Hugging Face publishes the same SHA-256 and
   size for every file (13/13 match).
 - The regular NSIS installer bundles the Visual C++ runtime DLLs (msvcp140, vcruntime140, vcruntime140_1); SETUP →
